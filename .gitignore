@@ -40,3 +40,7 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+databases/*.db
+databases/*.db.backup
+databases/*.db.damaged
+databases/*.db.corrupted
