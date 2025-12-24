@@ -77,40 +77,37 @@ class TelegramNotifier:
             return False
     
     def format_buy_signal(self, signal_data):
-        """格式化抄底信号消息（支撑线1>=8 AND 支撑线2>=8，强信号！）"""
+        """格式化超强抄底信号消息（触碰支撑线的币种总数>=8，整体市场信号！）"""
         # 获取支撑线统计
-        s1_count = signal_data.get('support_s1_count', 0)
-        s2_count = signal_data.get('support_s2_count', 0)
         total_count = signal_data['count']
         
         # 格式化币种列表
         coins_list = []
-        for i, coin in enumerate(signal_data['coins'], 1):
-            coins_list.append(f"{i}. {coin['symbol']} - ${coin['price']:.2f} ({coin['position']})")
+        for coin in signal_data['coins']:
+            symbol_short = coin['symbol'].replace('-USDT-SWAP', '')
+            coins_list.append(f"<b>{symbol_short}</b>\n   💰 价格: ${coin['price']:.4f}\n   📊 位置: {coin['position']}\n   📏 距离: {abs(coin['distance']):.2f}%\n")
         
-        coins_text = "\n".join(coins_list) if coins_list else "（所有币种均为双重抄底信号）"
+        coins_text = "\n".join(coins_list) if coins_list else "（详见监控页面）"
         
         message = f"""
-✅✅✅ <b>【强势抄底信号！】</b> ✅✅✅
+🟢🟢🟢 <b>【超强抄底信号！】</b> 🟢🟢🟢
 ━━━━━━━━━━━━━━━━━━━━━━
-💎 <b>市场机会显现！建议关注！</b>
+💎 <b>整体市场机会显现！建议关注！</b>
 ━━━━━━━━━━━━━━━━━━━━━━
 
 ⏰ 触发时间: {signal_data['time']}
-📊 <b>双线同步达标：</b>
-   ✅ 支撑线1: {s1_count}个币种 (>=8)
-   ✅ 支撑线2: {s2_count}个币种 (>=8)
-   📈 总触碰数: {total_count}个币种
+📊 <b>触碰支撑线总数: {total_count}个币种</b>
 
-🔥 <b>信号强度: 🟢🟢🟢 强势买入 🟢🟢🟢</b>
+🔥 <b>信号强度: 🟢🟢🟢 超强抄底 🟢🟢🟢</b>
 
-💰 <b>关键提示</b>:
-   • 支撑1和支撑2都达到强势标准
-   • 市场可能存在强劲反弹机会
-   • 建议关注潜在买入点
-   • 注意仓位管理和风控
+💡 <b>信号说明</b>:
+   • ≥8个币种同时接近支撑线
+   • 整体市场可能存在强劲反弹机会
+   • 建议密切关注市场动态
 
-<b>单独触发币种:</b>
+━━━━━━━━━━━━━━━━━━━━━━
+<b>部分触发币种详情:</b>
+
 {coins_text}
 
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -120,51 +117,36 @@ class TelegramNotifier:
         return message
     
     def format_sell_signal(self, signal_data):
-        """格式化超强逃顶信号消息（压力线1+压力线2总数>=8，最强信号！）"""
+        """格式化超强逃顶信号消息（触碰压力线的币种总数>=8，整体市场信号！）"""
         # 获取压力线统计
-        r1_count = signal_data.get('pressure_r1_count', 0)
-        r2_count = signal_data.get('pressure_r2_count', 0)
         total_count = signal_data['count']
         
-        # 格式化币种列表 - 每个币种单独一行，显示币种名称和距离百分比
+        # 格式化币种列表
         coins_list = []
-        for i, coin in enumerate(signal_data['coins'], 1):
-            symbol = coin['symbol'].replace('-USDT-SWAP', '')
-            price = coin['price']
-            position = coin['position']
-            
-            # 获取距离百分比
-            distance_text = ""
-            if 'distance_r1' in coin:
-                distance_text = f"距压力线{abs(coin['distance_r1']):.2f}%"
-            elif 'distance_r2' in coin:
-                distance_text = f"距压力线{abs(coin['distance_r2']):.2f}%"
-            
-            coins_list.append(f"<b>{symbol}</b>\n${price:.2f} | {distance_text} | {position}")
+        for coin in signal_data['coins']:
+            symbol_short = coin['symbol'].replace('-USDT-SWAP', '')
+            coins_list.append(f"<b>{symbol_short}</b>\n   💰 价格: ${coin['price']:.4f}\n   📊 位置: {coin['position']}\n   📏 距离: {abs(coin['distance']):.2f}%\n")
         
-        coins_text = "\n\n".join(coins_list) if coins_list else "（所有币种均为双重逃顶信号）"
+        coins_text = "\n".join(coins_list) if coins_list else "（详见监控页面）"
         
         message = f"""
 🔴🔴🔴 <b>【超强逃顶信号】</b> 🔴🔴🔴
 ━━━━━━━━━━━━━━━━━━━━━━
-⚠️ <b>市场风险极高！建议立即关注！</b>
+⚠️ <b>整体市场风险极高！建议立即关注！</b>
 ━━━━━━━━━━━━━━━━━━━━━━
 
 ⏰ 触发时间: {signal_data['time']}
-📊 <b>总触碰数: {total_count}个币种</b>
-   ├─ 压力线1: {r1_count}个币种
-   └─ 压力线2: {r2_count}个币种
+📊 <b>触碰压力线总数: {total_count}个币种</b>
 
 🔥 <b>信号强度: 🔴🔴🔴 超强逃顶 🔴🔴🔴</b>
 
-💥 <b>关键提示</b>:
-   • 多个币种同时触碰压力线
-   • 市场可能面临重大调整
-   • 强烈建议考虑止盈/减仓
-   • 避免追高，控制风险
+💡 <b>信号说明</b>:
+   • ≥8个币种同时接近压力线
+   • 整体市场可能面临重大调整
+   • 强烈建议考虑止盈或减仓
 
 ━━━━━━━━━━━━━━━━━━━━━━
-<b>触发币种详情:</b>
+<b>部分触发币种详情:</b>
 
 {coins_text}
 
@@ -456,23 +438,22 @@ class TelegramNotifier:
             else:
                 self.log(f"📊 双重抄底信号币种数不足 ({double_buy_data['count']} < {min_coins_double_buy})，跳过推送")
         
-        # 处理普通抄底信号（强势信号！）
-        # 注意：强势抄底要求支撑1和支撑2都要达到阈值（不是相加）
+        # 处理超强抄底信号（整体市场信号，要求触碰支撑线的总币种数 >= 8）
         if buy_data and self.config['signal_types']['buy']['enabled']:
-            min_coins_buy = self.config['signal_types'].get('buy', {}).get('min_coins', self.config['push_conditions']['min_coins'])
-            s1_count = buy_data.get('support_s1_count', 0)
-            s2_count = buy_data.get('support_s2_count', 0)
-            # 修改逻辑：支撑1和支撑2都要 >= min_coins_buy（不是相加）
-            if s1_count >= min_coins_buy and s2_count >= min_coins_buy:
+            # 超强信号要求：触碰支撑线的总币种数 >= 8（不管是支撑1还是支撑2）
+            min_coins_strong_buy = 8  # 固定阈值：8个币
+            total_count = buy_data['count']  # 触碰支撑线的总币种数
+            
+            if total_count >= min_coins_strong_buy:
                 if self.check_cooldown('buy'):
-                    self.log(f"✅✅✅ 检测到强势抄底信号！支撑1: {s1_count}个币种 >= {min_coins_buy}, 支撑2: {s2_count}个币种 >= {min_coins_buy}")
+                    self.log(f"✅✅✅ 检测到超强抄底信号！触碰支撑线总数: {total_count}个币种 >= {min_coins_strong_buy}")
                     message = self.format_buy_signal(buy_data)
                     if self.send_message(message):
                         self.last_buy_signal_time = datetime.now(BEIJING_TZ)
                 else:
                     self.log(f"⏳ 抄底信号在冷却期，跳过推送")
             else:
-                self.log(f"📊 抄底信号条件不满足 (支撑1: {s1_count}个, 支撑2: {s2_count}个, 都需 >= {min_coins_buy})，跳过推送")
+                self.log(f"📊 抄底信号条件不满足 (触碰支撑线总数: {total_count}个, 需 >= {min_coins_strong_buy})，跳过推送")
         
         # 优先处理双重逃顶信号（更强信号）
         if double_sell_data and self.config['signal_types'].get('double_sell', {}).get('enabled', False):
@@ -488,22 +469,22 @@ class TelegramNotifier:
             else:
                 self.log(f"📊 双重逃顶信号币种数不足 ({double_sell_data['count']} < {min_coins_double_sell})，跳过推送")
         
-        # 处理普通逃顶信号（最强信号！）
+        # 处理超强逃顶信号（整体市场信号，要求触碰压力线的总币种数 >= 8）
         if sell_data and self.config['signal_types']['sell']['enabled']:
-            min_coins_sell = self.config['signal_types'].get('sell', {}).get('min_coins', self.config['push_conditions']['min_coins'])
-            r1_count = sell_data.get('pressure_r1_count', 0)
-            r2_count = sell_data.get('pressure_r2_count', 0)
-            # 修改逻辑：压力1和压力2的值都要 >= 1，且总数 >= min_coins_sell
-            if sell_data['count'] >= min_coins_sell and r1_count >= 1 and r2_count >= 1:
+            # 超强信号要求：触碰压力线的总币种数 >= 8（不管是压力1还是压力2）
+            min_coins_strong_sell = 8  # 固定阈值：8个币
+            total_count = sell_data['count']  # 触碰压力线的总币种数
+            
+            if total_count >= min_coins_strong_sell:
                 if self.check_cooldown('sell'):
-                    self.log(f"🚨🚨🚨 检测到最强逃顶信号！总数: {sell_data['count']}个币种 (压力1: {r1_count}个 + 压力2: {r2_count}个)")
+                    self.log(f"🚨🚨🚨 检测到超强逃顶信号！触碰压力线总数: {total_count}个币种 >= {min_coins_strong_sell}")
                     message = self.format_sell_signal(sell_data)
                     if self.send_message(message):
                         self.last_sell_signal_time = datetime.now(BEIJING_TZ)
                 else:
                     self.log(f"⏳ 逃顶信号在冷却期，跳过推送")
             else:
-                self.log(f"📊 逃顶信号条件不满足 (总数: {sell_data['count']}, 需 >= {min_coins_sell}, 压力1: {r1_count}个, 压力2: {r2_count}个, 都需 >= 1)，跳过推送")
+                self.log(f"📊 逃顶信号条件不满足 (触碰压力线总数: {total_count}个, 需 >= {min_coins_strong_sell})，跳过推送")
         
         if not buy_data and not sell_data and not double_buy_data and not double_sell_data:
             self.log("📭 当前没有触发信号")
