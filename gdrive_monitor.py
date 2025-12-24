@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 # 配置
 FOLDER_ID = "1jFGGlGP5KEVhAxpCNxFIYEFI5-cDOBjM"  # 2025-12-09 folder
 KNOWN_FILE_ID = "1eyYiU6lU8n7SwWUvFtm_kUIvaZI0SO4U"  # This ID updates with latest content
-DB_PATH = '/home/user/webapp/crypto_data.db'
+DB_PATH = '/home/user/webapp/databases/crypto_data.db'
 CHECK_INTERVAL = 600  # 10分钟
 
 def download_latest_file():
