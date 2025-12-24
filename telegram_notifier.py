@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import pytz
 from telegram_config import load_config
 
-DB_PATH = "/home/user/webapp/crypto_data.db"
+DB_PATH = "/home/user/webapp/databases/support_resistance.db"  # 使用支撑压力线专用数据库
 BEIJING_TZ = pytz.timezone('Asia/Shanghai')
 
 class TelegramNotifier:
