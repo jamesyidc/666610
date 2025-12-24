@@ -89,16 +89,17 @@ def init_database():
     print(f"✅ Database initialized at {datetime.now(BEIJING_TZ).strftime('%Y-%m-%d %H:%M:%S')}")
 
 def get_latest_sar_data(symbol: str) -> Dict:
-    """从kline_technical_markers表获取最新SAR数据"""
+    """从okex_technical_indicators表获取最新SAR数据"""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute("""
         SELECT 
-            symbol, timeframe, timestamp, sar, sar_position, sar_quadrant
-        FROM kline_technical_markers
+            symbol, timeframe, strftime('%s', record_time) as timestamp, 
+            sar, sar_position, sar_quadrant, current_price
+        FROM okex_technical_indicators
         WHERE symbol = ? AND timeframe = ? AND sar IS NOT NULL
-        ORDER BY timestamp DESC
+        ORDER BY record_time DESC
         LIMIT 1
     """, (symbol, TIMEFRAME))
     
@@ -111,27 +112,28 @@ def get_latest_sar_data(symbol: str) -> Dict:
     return {
         'symbol': row[0],
         'timeframe': row[1],
-        'timestamp': row[2],
+        'timestamp': int(row[2]),
         'sar': row[3],
         'sar_position': row[4],
-        'sar_quadrant': row[5]
+        'sar_quadrant': row[5],
+        'current_price': row[6]
     }
 
 def get_price_data(symbol: str, timestamp: int) -> tuple:
-    """获取对应时间的开盘价和收盘价"""
+    """获取对应时间的价格（从okex_technical_indicators）"""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute("""
-        SELECT open, close FROM okex_kline_ohlc
-        WHERE symbol = ? AND timeframe = ? AND timestamp = ?
+        SELECT current_price, current_price FROM okex_technical_indicators
+        WHERE symbol = ? AND timeframe = ? AND strftime('%s', record_time) = ?
         LIMIT 1
-    """, (symbol, TIMEFRAME, timestamp))
+    """, (symbol, TIMEFRAME, str(timestamp)))
     
     row = cursor.fetchone()
     conn.close()
     
-    return (row[0], row[1]) if row else (None, None)
+    return (row[0], row[0]) if row else (None, None)
 
 def calculate_slope(symbol: str, current_sar: float, timestamp: int) -> Tuple[float, str]:
     """计算SAR斜率"""
