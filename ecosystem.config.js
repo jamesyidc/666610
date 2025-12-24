@@ -305,6 +305,21 @@ module.exports = {
       out_file: 'logs/sar-slope-collector-out.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
       merge_logs: true
+    },
+
+    // 【22】 Google Drive TXT文件检测器
+    {
+      name: 'gdrive-detector',
+      script: 'gdrive_final_detector.py',
+      interpreter: 'python3',
+      cwd: '/home/user/webapp',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '200M',
+      error_file: 'logs/gdrive-detector-error.log',
+      out_file: 'logs/gdrive-detector-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss',
+      merge_logs: true
     }
   ]
 };

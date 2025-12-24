@@ -4992,7 +4992,7 @@ def gdrive_detector_status():
         
         try:
             import sqlite3
-            db_path = '/home/user/webapp/crypto_data.db'
+            db_path = '/home/user/webapp/databases/crypto_data.db'
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             cursor.execute("SELECT snapshot_time FROM crypto_snapshots ORDER BY created_at DESC LIMIT 1")
