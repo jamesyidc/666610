@@ -1,0 +1,46 @@
+系统备份信息
+============
+
+备份时间: 2025-12-24 14:00:23
+备份路径: /tmp/crypto_system_full_backup_20251224_140003
+源目录: /home/user/webapp
+
+系统版本信息:
+- Python: Python 3.12.11
+- Node.js: v20.19.6
+- npm: 10.8.2
+- PM2: 6.0.14
+
+Git信息:
+- 当前分支: genspark_ai_developer
+- 最后提交: b9791e1 fix: 逃顶信号增加压力线1和压力线2都>=1的条件
+
+磁盘使用:
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root        26G   24G  2.7G  90% /
+
+PM2进程状态:
+┌────┬──────────────────────────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name                                     │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────────────────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 17 │ auto-folder-update                       │ default     │ N/A     │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b       │ user     │ disabled │
+│ 9  │ collector-monitor                        │ default     │ N/A     │ fork    │ 57784    │ 2D     │ 0    │ online    │ 0%       │ 11.9mb   │ user     │ disabled │
+│ 8  │ crypto-index-collector                   │ default     │ N/A     │ fork    │ 308180   │ 4m     │ 1468 │ online    │ 0%       │ 31.2mb   │ user     │ disabled │
+│ 15 │ db-maintenance                           │ default     │ N/A     │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b       │ user     │ disabled │
+│ 14 │ disk-monitor                             │ default     │ N/A     │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b       │ user     │ disabled │
+│ 20 │ flask-app                                │ default     │ N/A     │ fork    │ 225123   │ 31h    │ 12   │ online    │ 0%       │ 457.9mb  │ user     │ disabled │
+│ 18 │ fund-monitor-collector                   │ default     │ N/A     │ fork    │ 185857   │ 2D     │ 1    │ online    │ 0%       │ 28.2mb   │ user     │ disabled │
+│ 10 │ gdrive-auto-trigger                      │ default     │ N/A     │ fork    │ 57785    │ 2D     │ 0    │ online    │ 0%       │ 29.7mb   │ user     │ disabled │
+│ 3  │ gdrive-monitor                           │ default     │ N/A     │ fork    │ 70130    │ 2D     │ 2    │ online    │ 0%       │ 58.3mb   │ user     │ disabled │
+│ 16 │ log-cleanup                              │ default     │ N/A     │ fork    │ 0        │ 0      │ 0    │ stopped   │ 0%       │ 0b       │ user     │ disabled │
+│ 11 │ panic-wash-collector                     │ default     │ N/A     │ fork    │ 57789    │ 2D     │ 0    │ online    │ 0%       │ 26.8mb   │ user     │ disabled │
+│ 7  │ position-system-collector                │ default     │ N/A     │ fork    │ 307863   │ 9m     │ 138  │ online    │ 0%       │ 31.1mb   │ user     │ disabled │
+│ 12 │ price-comparison-collector               │ default     │ N/A     │ fork    │ 57790    │ 2D     │ 0    │ online    │ 0%       │ 16.7mb   │ user     │ disabled │
+│ 21 │ sar-slope-collector                      │ default     │ N/A     │ fork    │ 223256   │ 31h    │ 4    │ online    │ 0%       │ 19.1mb   │ user     │ disabled │
+│ 5  │ support-resistance-collector             │ default     │ N/A     │ fork    │ 57818    │ 2D     │ 1    │ online    │ 0%       │ 37.8mb   │ user     │ disabled │
+│ 6  │ support-resistance-snapshot-collector    │ default     │ N/A     │ fork    │ 57781    │ 2D     │ 0    │ online    │ 0%       │ 25.9mb   │ user     │ disabled │
+│ 0  │ sync-indicators-daemon                   │ default     │ N/A     │ fork    │ 57774    │ 2D     │ 0    │ online    │ 0%       │ 9.9mb    │ user     │ disabled │
+│ 13 │ telegram-notifier                        │ default     │ N/A     │ fork    │ 266010   │ 12h    │ 5    │ online    │ 100%     │ 31.9mb   │ user     │ disabled │
+│ 4  │ v1v2-collector                           │ default     │ N/A     │ fork    │ 57808    │ 2D     │ 1    │ online    │ 0%       │ 26.9mb   │ user     │ disabled │
+│ 2  │ websocket-collector                      │ default     │ N/A     │ fork    │ 57776    │ 2D     │ 0    │ online    │ 0%       │ 171.4mb  │ user     │ disabled │
+└────┴──────────────────────────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘

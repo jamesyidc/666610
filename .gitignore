@@ -1,0 +1,42 @@
+# 数据库文件
+*.db
+*.db-shm
+*.db-wal
+
+# Python缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 日志文件
+logs/
+*.log
+
+# 环境变量
+.env
+credentials.json
+google_credentials.json
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+
+# PM2
+.pm2/
+
+# 依赖
+node_modules/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
