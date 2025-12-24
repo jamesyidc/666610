@@ -11,25 +11,13 @@ sr_bp = Blueprint('support_resistance', __name__)
 
 @sr_bp.route('/api/support-resistance/latest')
 def api_support_resistance_latest():
-    """获取最新的支撑压力线数据"""
+    """获取最新的支撑压力线数据 - 每个币种的最新记录"""
     try:
         conn = sqlite3.connect(SUPPORT_RESISTANCE_DB)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
-        # 获取最新时间
-        cursor.execute("SELECT MAX(record_time) as latest_time FROM support_resistance_levels")
-        result = cursor.fetchone()
-        latest_time = result['latest_time'] if result else None
-        
-        if not latest_time:
-            conn.close()
-            return jsonify({
-                'success': False,
-                'message': 'No data available'
-            })
-        
-        # 获取该时间的所有数据（包含所有字段）
+        # 获取每个币种的最新记录（使用子查询）
         cursor.execute('''
             SELECT 
                 symbol, current_price, 
@@ -45,13 +33,27 @@ def api_support_resistance_latest():
                 alert_scenario_1, alert_scenario_2, alert_scenario_3, alert_scenario_4,
                 alert_triggered, baseline_price_24h, change_percent_24h,
                 high_7d, low_7d, high_48h, low_48h
-            FROM support_resistance_levels
-            WHERE record_time = ?
+            FROM support_resistance_levels srl
+            WHERE srl.record_time = (
+                SELECT MAX(record_time) 
+                FROM support_resistance_levels 
+                WHERE symbol = srl.symbol
+            )
             ORDER BY symbol
-        ''', (latest_time,))
+        ''')
         
         rows = cursor.fetchall()
         data = [dict(row) for row in rows]
+        
+        if not data:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'No data available'
+            })
+        
+        # 获取最新更新时间
+        latest_time = max(row['record_time'] for row in data)
         
         # 按场景分组
         scenario_1 = []  # 接近支撑线
