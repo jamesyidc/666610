@@ -29,7 +29,7 @@ def api_support_resistance_latest():
                 'message': 'No data available'
             })
         
-        # 获取该时间的所有数据
+        # 获取该时间的所有数据（包含所有字段）
         cursor.execute('''
             SELECT 
                 symbol, current_price, 
@@ -38,7 +38,13 @@ def api_support_resistance_latest():
                 distance_to_support_1, distance_to_support_2,
                 distance_to_resistance_1, distance_to_resistance_2,
                 support_intensity_score, resistance_intensity_score,
-                alert_scenario, record_time
+                alert_scenario, record_time,
+                position_s2_r1, position_s1_r2, position_s1_r2_upper, position_s1_r1,
+                position_7d, position_48h,
+                alert_7d_low, alert_7d_high, alert_48h_low, alert_48h_high,
+                alert_scenario_1, alert_scenario_2, alert_scenario_3, alert_scenario_4,
+                alert_triggered, baseline_price_24h, change_percent_24h,
+                high_7d, low_7d, high_48h, low_48h
             FROM support_resistance_levels
             WHERE record_time = ?
             ORDER BY symbol
@@ -105,7 +111,13 @@ def api_support_resistance_history(symbol):
                 distance_to_support_1, distance_to_support_2,
                 distance_to_resistance_1, distance_to_resistance_2,
                 support_intensity_score, resistance_intensity_score,
-                alert_scenario, record_time
+                alert_scenario, record_time,
+                position_s2_r1, position_s1_r2, position_s1_r2_upper, position_s1_r1,
+                position_7d, position_48h,
+                alert_7d_low, alert_7d_high, alert_48h_low, alert_48h_high,
+                alert_scenario_1, alert_scenario_2, alert_scenario_3, alert_scenario_4,
+                alert_triggered, baseline_price_24h, change_percent_24h,
+                high_7d, low_7d, high_48h, low_48h
             FROM support_resistance_levels
             WHERE symbol = ?
                 AND datetime(record_time) >= datetime('now', '-' || ? || ' hours', 'localtime')
