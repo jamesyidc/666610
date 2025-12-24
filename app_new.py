@@ -14,6 +14,14 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 BEIJING_TZ = pytz.timezone('Asia/Shanghai')
 
+# 注册支撑压力线蓝图（使用独立数据库）
+try:
+    from support_resistance_routes import sr_bp
+    app.register_blueprint(sr_bp)
+    print("✅ 已注册support_resistance蓝图（使用独立数据库）")
+except Exception as e:
+    print(f"⚠️ 无法注册support_resistance蓝图: {e}")
+
 # K线图服务URL配置
 CHART_BASE_URL = "https://5000-iz6uddj6rs3xe48ilsyqq-2e1b9533.sandbox.novita.ai"
 
