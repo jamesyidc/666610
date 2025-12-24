@@ -418,7 +418,7 @@ class PanicWashCollector:
                 time.sleep(30)
 
 def main():
-    collector = PanicWashCollector()
+    collector = PanicWashCollector('databases/crypto_data.db')
     
     # 立即执行一次采集
     logging.info("📊 执行首次恐慌清洗指数采集...")

@@ -10196,6 +10196,187 @@ def fund_monitor_history_page():
     """资金监控异常历史查询页面"""
     return render_template('fund_monitor_history.html')
 
+# ========== SAR 斜率数据导出导入API ==========
+
+@app.route('/api/sar-slope/export', methods=['GET'])
+def api_sar_slope_export():
+    """导出SAR斜率数据到JSON"""
+    try:
+        conn = sqlite3.connect('databases/crypto_data.db')
+        cursor = conn.cursor()
+        
+        # 获取参数
+        symbol = request.args.get('symbol')  # 可选：只导出特定币种
+        days = int(request.args.get('days', 7))  # 默认导出7天数据
+        
+        # 计算时间范围
+        from datetime import datetime, timedelta
+        end_time = int(datetime.now().timestamp())
+        start_time = int((datetime.now() - timedelta(days=days)).timestamp())
+        
+        # 构建查询
+        if symbol:
+            where_clause = "WHERE symbol = ? AND timestamp BETWEEN ? AND ?"
+            params = (symbol, start_time, end_time)
+        else:
+            where_clause = "WHERE timestamp BETWEEN ? AND ?"
+            params = (start_time, end_time)
+        
+        # 导出 sar_slope_v2 数据
+        cursor.execute(f"""
+            SELECT * FROM sar_slope_v2
+            {where_clause}
+            ORDER BY timestamp DESC
+        """, params)
+        
+        columns = [desc[0] for desc in cursor.description]
+        rows = cursor.fetchall()
+        
+        sar_data = [dict(zip(columns, row)) for row in rows]
+        
+        # 获取统计信息
+        cursor.execute(f"SELECT COUNT(DISTINCT symbol) FROM sar_slope_v2 {where_clause}", params)
+        symbol_count = cursor.fetchone()[0]
+        
+        conn.close()
+        
+        export_data = {
+            'export_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'days': days,
+            'symbol': symbol or 'ALL',
+            'symbol_count': symbol_count,
+            'record_count': len(sar_data),
+            'data': sar_data
+        }
+        
+        return jsonify({
+            'success': True,
+            'export': export_data
+        })
+        
+    except Exception as e:
+        import traceback
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }), 500
+
+@app.route('/api/sar-slope/import', methods=['POST'])
+def api_sar_slope_import():
+    """从JSON导入SAR斜率数据"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'data' not in data:
+            return jsonify({
+                'success': False,
+                'error': '无效的数据格式'
+            }), 400
+        
+        conn = sqlite3.connect('databases/crypto_data.db')
+        cursor = conn.cursor()
+        
+        import_data = data['data']
+        imported_count = 0
+        skipped_count = 0
+        
+        for record in import_data:
+            try:
+                # 提取字段
+                columns = list(record.keys())
+                # 移除 id 和 created_at，让数据库自动生成
+                columns = [col for col in columns if col not in ['id', 'created_at']]
+                
+                values = [record[col] for col in columns]
+                placeholders = ','.join(['?' for _ in columns])
+                
+                # 使用 INSERT OR REPLACE
+                insert_sql = f"""
+                    INSERT OR REPLACE INTO sar_slope_v2 
+                    ({','.join(columns)}) 
+                    VALUES ({placeholders})
+                """
+                
+                cursor.execute(insert_sql, values)
+                imported_count += 1
+                
+            except sqlite3.IntegrityError:
+                skipped_count += 1
+                continue
+            except Exception as e:
+                print(f"导入记录失败: {e}")
+                skipped_count += 1
+                continue
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'imported': imported_count,
+            'skipped': skipped_count,
+            'total': len(import_data)
+        })
+        
+    except Exception as e:
+        import traceback
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }), 500
+
+@app.route('/api/sar-slope/stats', methods=['GET'])
+def api_sar_slope_stats():
+    """获取SAR数据统计信息"""
+    try:
+        conn = sqlite3.connect('databases/crypto_data.db')
+        cursor = conn.cursor()
+        
+        # 总记录数
+        cursor.execute("SELECT COUNT(*) FROM sar_slope_v2")
+        total_records = cursor.fetchone()[0]
+        
+        # 币种数量
+        cursor.execute("SELECT COUNT(DISTINCT symbol) FROM sar_slope_v2")
+        symbol_count = cursor.fetchone()[0]
+        
+        # 最早和最新记录时间
+        cursor.execute("SELECT MIN(datetime_beijing), MAX(datetime_beijing) FROM sar_slope_v2")
+        earliest, latest = cursor.fetchone()
+        
+        # 每个币种的记录数
+        cursor.execute("""
+            SELECT symbol, COUNT(*) as count 
+            FROM sar_slope_v2 
+            GROUP BY symbol 
+            ORDER BY count DESC
+        """)
+        
+        symbol_stats = [{'symbol': row[0], 'count': row[1]} for row in cursor.fetchall()]
+        
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'total_records': total_records,
+                'symbol_count': symbol_count,
+                'earliest_record': earliest,
+                'latest_record': latest,
+                'symbols': symbol_stats
+            }
+        })
+        
+    except Exception as e:
+        import traceback
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
 

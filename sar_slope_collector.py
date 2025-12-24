@@ -23,7 +23,7 @@ MONITORED_SYMBOLS = [
 ]
 
 BEIJING_TZ = pytz.timezone('Asia/Shanghai')
-DB_PATH = '/home/user/webapp/crypto_data.db'
+DB_PATH = '/home/user/webapp/databases/crypto_data.db'
 TIMEFRAME = '5m'
 
 def init_database():
