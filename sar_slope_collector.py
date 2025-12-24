@@ -274,6 +274,22 @@ def insert_sar_slope_data(symbol: str, sar_data: Dict, price_open: float, price_
         price_close
     ))
     
+    # 同步到 sar_slope_v2 表（用于API展示）
+    cursor.execute("""
+        INSERT OR REPLACE INTO sar_slope_v2
+        (symbol, timestamp, datetime_utc, datetime_beijing, sar_value, sar_direction, price_open, price_close)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        symbol,
+        timestamp,
+        datetime_utc,
+        datetime_beijing,
+        sar_data['sar'],
+        sar_data['sar_position'],  # sar_position 映射到 sar_direction
+        price_open,
+        price_close
+    ))
+    
     conn.commit()
     conn.close()
 
