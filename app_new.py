@@ -5462,6 +5462,15 @@ def support_resistance_page():
     response.headers['Expires'] = '0'
     return response
 
+@app.route('/test_support_resistance.html')
+def test_support_resistance():
+    """支撑压力线测试页面"""
+    response = make_response(render_template('test_support_resistance.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 @app.route('/trading-signals')
 def trading_signals_page():
     """决策-交易信号系统页面"""
