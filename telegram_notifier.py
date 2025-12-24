@@ -120,21 +120,32 @@ class TelegramNotifier:
         return message
     
     def format_sell_signal(self, signal_data):
-        """格式化逃顶信号消息（压力线1+压力线2总数>=8，最强信号！）"""
+        """格式化超强逃顶信号消息（压力线1+压力线2总数>=8，最强信号！）"""
         # 获取压力线统计
         r1_count = signal_data.get('pressure_r1_count', 0)
         r2_count = signal_data.get('pressure_r2_count', 0)
         total_count = signal_data['count']
         
-        # 格式化币种列表
+        # 格式化币种列表 - 每个币种单独一行，显示币种名称和距离百分比
         coins_list = []
         for i, coin in enumerate(signal_data['coins'], 1):
-            coins_list.append(f"{i}. {coin['symbol']} - ${coin['price']:.2f} ({coin['position']})")
+            symbol = coin['symbol'].replace('-USDT-SWAP', '')
+            price = coin['price']
+            position = coin['position']
+            
+            # 获取距离百分比
+            distance_text = ""
+            if 'distance_r1' in coin:
+                distance_text = f"距压力线{abs(coin['distance_r1']):.2f}%"
+            elif 'distance_r2' in coin:
+                distance_text = f"距压力线{abs(coin['distance_r2']):.2f}%"
+            
+            coins_list.append(f"<b>{symbol}</b>\n${price:.2f} | {distance_text} | {position}")
         
-        coins_text = "\n".join(coins_list) if coins_list else "（所有币种均为双重逃顶信号）"
+        coins_text = "\n\n".join(coins_list) if coins_list else "（所有币种均为双重逃顶信号）"
         
         message = f"""
-🚨🚨🚨 <b>【最强逃顶信号！】</b> 🚨🚨🚨
+🔴🔴🔴 <b>【超强逃顶信号】</b> 🔴🔴🔴
 ━━━━━━━━━━━━━━━━━━━━━━
 ⚠️ <b>市场风险极高！建议立即关注！</b>
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -144,7 +155,7 @@ class TelegramNotifier:
    ├─ 压力线1: {r1_count}个币种
    └─ 压力线2: {r2_count}个币种
 
-🔥 <b>信号强度: 🔴🔴🔴 极度危险 🔴🔴🔴</b>
+🔥 <b>信号强度: 🔴🔴🔴 超强逃顶 🔴🔴🔴</b>
 
 💥 <b>关键提示</b>:
    • 多个币种同时触碰压力线
@@ -152,7 +163,9 @@ class TelegramNotifier:
    • 强烈建议考虑止盈/减仓
    • 避免追高，控制风险
 
-<b>单独触发币种:</b>
+━━━━━━━━━━━━━━━━━━━━━━
+<b>触发币种详情:</b>
+
 {coins_text}
 
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -189,29 +202,47 @@ class TelegramNotifier:
         return message
     
     def format_double_sell_signal(self, signal_data):
-        """格式化双重逃顶信号消息（同时触发压力1和压力2）"""
-        # 使用自定义模板
+        """格式化双重逃顶信号消息（单个币种同时触发压力1和压力2）"""
+        # 格式化币种列表 - 每个币种显示名称和到两条压力线的距离
         coins_list = []
         for i, coin in enumerate(signal_data['coins'], 1):
-            coins_list.append(f"{i}. {coin['symbol']} - ${coin['price']:.2f}\n   距压力1: {coin['distance_r1']:.2f}% | 距压力2: {coin['distance_r2']:.2f}%")
+            symbol = coin['symbol'].replace('-USDT-SWAP', '')
+            price = coin['price']
+            dist_r1 = abs(coin['distance_r1'])
+            dist_r2 = abs(coin['distance_r2'])
+            
+            coins_list.append(
+                f"<b>{symbol}</b>\n"
+                f"${price:.2f}\n"
+                f"距压力线1: {dist_r1:.2f}%\n"
+                f"距压力线2: {dist_r2:.2f}%"
+            )
         
-        coins_text = "\n".join(coins_list)
+        coins_text = "\n\n".join(coins_list)
         
         message = f"""
 🔴🔴 <b>【双重逃顶信号】</b> 🔴🔴
+━━━━━━━━━━━━━━━━━━━━━━
+⚠️ <b>单个币种同时触碰两条压力线！</b>
+━━━━━━━━━━━━━━━━━━━━━━
 
-⏰ 时间: {signal_data['time']}
-📊 触发币种: {signal_data['count']}个
-🔥 信号强度: <b>极强（同时触发压力1+压力2）</b>
+⏰ 触发时间: {signal_data['time']}
+📊 触发币种数: {signal_data['count']}个
+🔥 信号强度: <b>🔴🔴 双重逃顶 🔴🔴</b>
 
-<b>币种列表:</b>
+💡 <b>信号说明</b>:
+   • 这些币种同时接近压力线1和压力线2
+   • 单个币种的双重压力信号
+   • 强烈建议考虑止盈或减仓
+
+━━━━━━━━━━━━━━━━━━━━━━
+<b>触发币种详情:</b>
+
 {coins_text}
 
-⚠️ <b>重要提示</b>: 
-   这些币种同时接近两条压力线，是更强的逃顶信号！
-   强烈建议考虑止盈或减仓。
-
-📍 查看详情: https://5000-ilsitop6yown44mau7vd7-c07dda5e.sandbox.novita.ai/support-resistance
+━━━━━━━━━━━━━━━━━━━━━━
+📍 实时监控: https://5000-ilsitop6yown44mau7vd7-c07dda5e.sandbox.novita.ai/support-resistance
+━━━━━━━━━━━━━━━━━━━━━━
 """
         return message
     
